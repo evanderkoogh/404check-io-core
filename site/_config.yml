@@ -1,0 +1,12 @@
+# Site settings
+title: "404Check.io"
+email: erwin@404check.io
+description: > # this means to ignore newlines until "baseurl:"
+  Automatically check your website for dead links for free.
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "http://404check.io" # the base hostname & protocol for your site
+twitter_username: evanderkoogh
+github_username:  evanderkoogh
+
+# Build settings
+markdown: kramdown

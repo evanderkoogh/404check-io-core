@@ -1,0 +1,34 @@
+---
+layout: default
+---
+<div class="container">
+  <div class="row">
+    <div class="col-md-8 col-md-offset-2">
+      <div>
+        <form class="form-inline" id="sitemap_form">
+          <div class="form-group">
+            <label class="sr-only" for="sitemap_url">URL to sitemap</label>
+            <div class="input-group">
+              <input type="text" size="60" class="form-control input-lg" id="sitemap_url" placeholder="Sitemap URL">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-lg btn-primary">Check</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $( "#sitemap_form" ).submit(function( event ) {
+    event.preventDefault();
+
+    var url = document.getElementById("sitemap_url").value;
+    console.log(url);
+
+    var submit = $.post( "http://api.404check.io/reports", { sitemap: url });
+    submit.done(function (data) {
+      alert(data);
+    });
+  });
+</script>
