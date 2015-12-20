@@ -19,16 +19,8 @@ layout: default
   </div>
 </div>
 
-<script>
-  $( "#sitemap_form" ).submit(function( event ) {
-    event.preventDefault();
+<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="/assets/main.js"></script>
 
-    var url = document.getElementById("sitemap_url").value;
-    console.log(url);
-
-    var submit = $.post( "http://api.404check.io/reports", { sitemap: url });
-    submit.done(function (data) {
-      alert(data);
-    });
-  });
-</script>
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
