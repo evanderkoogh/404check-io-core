@@ -1,0 +1,92 @@
+---
+layout: default
+---
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <table class="table table-bordered">
+        <caption>Report information</caption>
+        <tr>
+          <th>Id:</th>
+          <td id="id">Retrieving info..</td>
+        </tr>
+        <tr>
+          <th>Status:</th>
+          <td id="status">Retrieving info..</td>
+        </tr>
+        <tr>
+          <th>Sitemap:</th>
+          <td id="sitemap">Retrieving info..</td>
+        </tr>
+        <tr>
+          <th>Email:</th>
+          <td id="email">Retrieving info..</td>
+        </tr>
+        <tr>
+          <th>Total URLs:</th>
+          <td id="total_urls">Retrieving info..</td>
+        </tr>
+        <tr>
+          <th>URLs finished:</th>
+          <td id="done_urls">Retrieving info..</td>
+        </tr>
+        <tr>
+          <th>Date:</th>
+          <td id="date">Retrieving info..</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <table id="errors" class="table table-bordered table-condensed">
+        <caption>Errors &amp; Warnings</caption>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+<script>
+
+  function getQueryStringParams() {
+    var queryDict = {};
+    location.search.substr(1).split("&").forEach(function(item) {queryDict[item.split("=")[0]] = item.split("=")[1]})
+    return queryDict
+  }
+
+  var params = getQueryStringParams();
+
+  var get = $.get('https://api.404check.io/reports/' + params.id);
+  get.done(function (report) {
+    $('#id').html(report.id);
+    $('#status').html(report.status);
+    $('#sitemap').html(report.sitemap);
+    $('#email').html(report.email);
+    $('#total_urls').html(report.total_urls);
+    $('#done_urls').html(report.done_urls);
+    $('#date').html(report.started);
+
+    $.each(report.errors, function(url, all_errors) {
+      if(!$.isEmptyObject(all_errors)) {
+        var row = $("<tr>");
+        var heading = $("<th colspan='2'>");
+        row.append(heading);
+        heading.html(url);
+        $('#errors').append(row);
+        $.each(all_errors, function(link, link_error) {
+          var row = $("<tr class='warning'>");
+          if('404' === link_error) {
+            row.addClass('danger');
+          } else {
+            row.addClass('warning');
+          }
+
+          row.append("<td>" + link_error + "</td>");
+          row.append("<td>" + link + "</td>");
+          $('#errors').append(row);
+        });
+      }
+    })
+  });
+</script>
