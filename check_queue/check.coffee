@@ -56,7 +56,7 @@ extract_links = (html, url) ->
 		if link
 			abs_link = url_parse.resolve url, link
 			if abs_link.indexOf('http') is 0
-				links[abs_link] = abs_link.split('#')[0]
+				links[abs_link] = abs_link.split('?')[0].split('#')[0]
 	return (val for key, val of links)
 	
 decodeBody = (res, body, cb) ->
