@@ -10,11 +10,11 @@ headers =
 agentOptions =
 	keepAlive: true
 	maxSockets: 4
-request = request.defaults {headers, agentOptions, timeout: 3000}
+request = request.defaults {headers, agentOptions, timeout: 5000}
 
 exports.check_url = (url, cb) ->
 	request.get {uri: url, encoding: null}, (err, res, body) ->
-		statusCode = if res then res.statusCode else 'ERR'
+		statusCode = if res then res.statusCode else "ERR: #{err}"
 		cache.set url, statusCode
 		results =
 			url: url
@@ -43,7 +43,7 @@ check_link = (link, cb) ->
 			cb(err, statusCode)
 		else
 			request.head link, (err, res) ->
-				statusCode = if res then res.statusCode else 'ERR'
+				statusCode = if res then res.statusCode else "ERR: #{err}"
 				cache.set link, statusCode
 				cb(err, statusCode)
 
@@ -56,7 +56,7 @@ extract_links = (html, url) ->
 		if link
 			abs_link = url_parse.resolve url, link
 			if abs_link.indexOf('http') is 0
-				links[abs_link] = abs_link
+				links[abs_link] = abs_link.split('#')[0]
 	return (val for key, val of links)
 	
 decodeBody = (res, body, cb) ->
