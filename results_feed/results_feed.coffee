@@ -54,7 +54,7 @@ saveReport = (report, id, cb) ->
 		cb(err)
 
 exports.handler = (event, context) ->
-	inserts = (record for record in event.Records when record.eventName is 'INSERT' )
+	inserts = (record for record in event.Records when record.eventName is 'INSERT' or record.eventName is 'MODIFY')
 	records = (parseRecord(record) for record in inserts)
 	reports = {}
 	processRecord reports, record for record in records
