@@ -21,7 +21,7 @@ saveReport = (total_urls, reportId, cb) ->
 		AttributeUpdates:
 			status:
 				Action: 'PUT'
-				Value: 'STARTED'
+				Value: 'IN_PROGRESS'
 			total_urls:
 				Action: 'PUT'
 				Value: total_urls
