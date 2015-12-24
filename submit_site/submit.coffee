@@ -36,6 +36,7 @@ saveReport = (id, hostname, sitemaps, cb) ->
 		sitemaps: sitemaps
 		status: 'SUBMITTED'
 		submitted: new Date().toString()
+		errors: {}
 	
 	params =
 		Item: report
