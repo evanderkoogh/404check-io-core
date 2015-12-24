@@ -17,23 +17,22 @@ findSitemaps = (hostname, cb) ->
 				else
 					cb "Could not find one or more sitemaps for hostname: #{hostname}"
 
-processSitemaps = (sitemaps, done) ->
+processSitemaps = (sitemaps, reportId, done) ->
 	params =
 		FunctionName: '404_New_Sitemap'
 		InvocationType: 'Event'
-		Payload: JSON.stringify({sitemap: sitemaps[0]})
+		Payload: JSON.stringify({ sitemaps, reportId })
 	done()
 	lambda.invoke params, (err, data) ->
 		console.log err if err
 		console.log data if data
 		done err
 
-saveReport = (hostname, sitemaps, cb) ->
-	isoDate = new Date().toISOString().substring(0, 10)
+saveReport = (id, hostname, sitemaps, cb) ->
 	report =
-		id: "#{hostname}_#{isoDate}"
+		id: id
 		hostname: hostname
-		date: isoDate
+		date: new Date().toISOString().substring(0, 10)
 		sitemaps: sitemaps
 		status: 'SUBMITTED'
 		submitted: new Date().toString()
@@ -50,11 +49,13 @@ saveReport = (hostname, sitemaps, cb) ->
 
 exports.handler = (event, context) ->
 	console.log JSON.stringify(event, null, 2)
-	findSitemaps event.hostname, (err, sitemaps) ->
+	hostname = event.hostname
+	findSitemaps hostname, (err, sitemaps) ->
 		unless err
-			processSitemaps sitemaps, (err) ->
+			reportId = "#{hostname}_#{new Date().toISOString().substring(0, 10)}"
+			processSitemaps sitemaps, reportId, (err) ->
 				unless err
-					saveReport event.hostname, sitemaps, (err, report) ->
+					saveReport reportId, hostname, sitemaps, (err, report) ->
 						context.done err, report
 				else
 					context.fail err
