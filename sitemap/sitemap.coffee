@@ -7,7 +7,7 @@ lambda = new AWS.Lambda()
 
 queueUrls = (urls, reportId) ->
 	params =
-		Entries: ({Id: "#{index}", MessageBody: JSON.stringify({url, reportId}) } for url, index in urls)
+		Entries: ({Id: "#{index}", MessageBody: JSON.stringify({url, report_id: reportId}) } for url, index in urls)
 		QueueUrl: 'https://sqs.eu-west-1.amazonaws.com/812926173749/404_urls_to_check'
 	console.log params
 	sqs.sendMessageBatch params, (err, data) ->
