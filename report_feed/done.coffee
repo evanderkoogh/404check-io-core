@@ -26,7 +26,7 @@ done = (id, cb) ->
 
 notifyDone = (id, cb) ->
 	params =
-		Message: JSON.stringify({ id })
+		Message: JSON.stringify({ report_id: id })
 		TopicArn: 'arn:aws:sns:eu-west-1:812926173749:404_Report_Done'
 	sns.publish params, (err, data) ->
 		console.log err if err
