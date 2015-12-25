@@ -15,7 +15,7 @@ parseRecord = (record) ->
 	for url, value of map
 		if value.S isnt '200'
 			info.errors[url] = value.S
-		i++
+		links++
 
 	info.total_links = links
 	return info

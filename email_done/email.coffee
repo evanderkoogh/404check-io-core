@@ -3,10 +3,17 @@ async = require 'async'
 
 ses = new AWS.SES()
 
-processRecord = (record, cb) ->
+parseRecord = (record, cb) ->
 	console.log JSON.stringify(record, null, 2)
 	console.log JSON.stringify(record.Sns.Message, null, 2)
-	return JSON.parse(record.Sns.Message)
+	return JSON.parse(record.Sns.Message).report_id
+
+getReport = (id, cb) ->
+	params =
+		Key:
+			id: id
+		TableName: '404_Reports'
+	dbDoc.get params, cb
 
 sendEmail = (report, cb) ->
 	if report.email
@@ -27,7 +34,7 @@ sendEmail = (report, cb) ->
 	async.setImmediate cb
 
 exports.handler = (event, context) ->
-	msgs = (parseRecord(record) for record in event.Records)
-	async.map msgs, getReport, (err, reports) ->
+	ids = (parseRecord(record) for record in event.Records)
+	async.map ids, getReport, (err, reports) ->
 		async.each reports, sendEmail, (err) ->
 			context.done err
