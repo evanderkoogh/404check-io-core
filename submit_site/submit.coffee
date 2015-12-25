@@ -28,15 +28,11 @@ processSitemaps = (sitemaps, reportId, done) ->
 		console.log data if data
 		done err
 
-saveReport = (id, hostname, sitemaps, cb) ->
-	report =
-		id: id
-		hostname: hostname
-		date: new Date().toISOString().substring(0, 10)
-		sitemaps: sitemaps
-		status: 'SUBMITTED'
-		submitted: new Date().toString()
-		errors: {}
+saveReport = (report, cb) ->
+	report.date = new Date().toISOString().substring(0, 10)
+	report.status = 'SUBMITTED'
+	report.submitted = new Date().toString()
+	report.errors = {}
 	
 	params =
 		Item: report
@@ -56,7 +52,12 @@ exports.handler = (event, context) ->
 			reportId = "#{hostname}_#{new Date().toISOString().substring(0, 10)}"
 			processSitemaps sitemaps, reportId, (err) ->
 				unless err
-					saveReport reportId, hostname, sitemaps, (err, report) ->
+					report =
+						id: reportId
+						hostname: hostname
+						sitemaps: sitemaps
+					report.email = event.email if event.email
+					saveReport report, (err, report) ->
 						context.done err, report
 				else
 					context.fail err
