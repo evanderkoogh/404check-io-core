@@ -11,9 +11,13 @@ parseRecord = (record) ->
 		errors: {}
 
 	map = record.dynamodb.NewImage.results.M
+	links = 0
 	for url, value of map
 		if value.S isnt '200'
 			info.errors[url] = value.S
+		i++
+
+	info.total_links = links
 	return info
 
 processRecord = (reports, record) ->
@@ -22,8 +26,10 @@ processRecord = (reports, record) ->
 		report = {}
 		report.id = record.report_id
 		report.count = 0
+		report.total_links = 0
 		report.errors = {}
 	report.count++
+	report.total_links = report.total_links + record.total_links 
 	if record.errors and record.errors isnt {}
 		report.errors[record.url] = record.errors 
 	reports[record.report_id] = report
