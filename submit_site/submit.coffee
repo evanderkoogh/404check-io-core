@@ -22,7 +22,6 @@ processSitemaps = (sitemaps, reportId, done) ->
 		FunctionName: '404_New_Sitemap'
 		InvocationType: 'Event'
 		Payload: JSON.stringify({ sitemaps, reportId })
-	done()
 	lambda.invoke params, (err, data) ->
 		console.log err if err
 		console.log data if data
