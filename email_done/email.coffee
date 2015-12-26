@@ -5,18 +5,18 @@ ses = new AWS.SES()
 dbDoc = new AWS.DynamoDB.DocumentClient()
 
 parseRecord = (record, cb) ->
-	console.log JSON.stringify(record, null, 2)
-	console.log JSON.stringify(record.Sns.Message, null, 2)
-	return JSON.parse(record.Sns.Message).report_id
+	return JSON.parse(record.Sns.Message).id
 
 getReport = (id, cb) ->
 	params =
 		Key:
 			id: id
 		TableName: '404_Reports'
-	dbDoc.get params, cb
+	dbDoc.get params, (err, data) ->
+		cb err, data.Item
 
 sendEmail = (report, cb) ->
+	console.log "Sending an email for report: #{report.id} to #{report.email}?"
 	if report.email
 		params =
 			Source: 'admin@404check.io'
@@ -32,10 +32,15 @@ sendEmail = (report, cb) ->
 			console.log err if err
 			console.log data if data
 			cb err
-	async.setImmediate cb
+	else
+		async.setImmediate cb
 
 exports.handler = (event, context) ->
 	ids = (parseRecord(record) for record in event.Records)
 	async.map ids, getReport, (err, reports) ->
-		async.each reports, sendEmail, (err) ->
-			context.done err
+		unless err 
+			async.each reports, sendEmail, (err) ->
+				context.done err
+		else
+			console.error err
+			context.fail err
