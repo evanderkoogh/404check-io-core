@@ -2,6 +2,7 @@ AWS = require 'aws-sdk'
 async = require 'async'
 
 ses = new AWS.SES()
+dbDoc = new AWS.DynamoDB.DocumentClient()
 
 parseRecord = (record, cb) ->
 	console.log JSON.stringify(record, null, 2)
