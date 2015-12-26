@@ -2,8 +2,10 @@ AWS = require 'aws-sdk'
 
 exports.saveResults = (results, cb) ->
 	params = transformResultsToParams results
+	console.log "Saving: #{results.url}"
 	db = new AWS.DynamoDB()
 	db.putItem params, (err, data) ->
+		console.log err if err
 		cb err
 
 transformResultsToParams = (results) ->
