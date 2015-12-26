@@ -29,28 +29,35 @@ processRecord = (reports, record) ->
 		report.total_links = 0
 		report.errors = {}
 	report.count++
-	report.total_links = report.total_links + record.total_links 
-	if record.errors and record.errors isnt {}
+	report.total_links = report.total_links + record.total_links
+	if Object.keys(record.errors).length > 0
 		report.errors[record.url] = record.errors 
 	reports[record.report_id] = report
 
 saveReport = (report, id, cb) ->
+	console.log "Saving report:"
+	console.log report
 	params =
 		Key:
 			id: id
 		TableName: '404_Reports'
 		ExpressionAttributeValues:
 			":count": report.count
-		UpdateExpression: "add done_urls :count set"
+			":links": report.total_links
+		UpdateExpression: "add done_urls :count, total_links :links"
 	i = 0
-	for url, errors of report.errors
-		index = "url#{i++}"
-		params.ExpressionAttributeNames = {} unless params.ExpressionAttributeNames
-		params.ExpressionAttributeNames["##{index}"] = "#{url}"
-		params.ExpressionAttributeValues[":#{index}"] = errors
-		params.UpdateExpression = params.UpdateExpression + " errors.##{index} = :#{index},"
+	if Object.keys(report.errors).length > 0
+		params.UpdateExpression = params.UpdateExpression + " set"
 
-	params.UpdateExpression = params.UpdateExpression.substring(0, params.UpdateExpression.length - 1)
+		for url, errors of report.errors
+			index = "url#{i++}"
+			params.ExpressionAttributeNames = {} unless params.ExpressionAttributeNames
+			params.ExpressionAttributeNames["##{index}"] = "#{url}"
+			params.ExpressionAttributeValues[":#{index}"] = errors
+			params.UpdateExpression = params.UpdateExpression + " errors.##{index} = :#{index},"
+
+		#remove last , from UpdateExpression
+		params.UpdateExpression = params.UpdateExpression.substring(0, params.UpdateExpression.length - 1)
 
 	console.log JSON.stringify(params, null, 2)
 
