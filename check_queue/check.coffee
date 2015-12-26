@@ -13,7 +13,7 @@ agentOptions =
 request = request.defaults {headers, agentOptions, timeout: 5000}
 
 exports.check_url = (url, cb) ->
-	request.get {uri: url, encoding: null}, (err, res, body) ->
+	request.get {uri: url, gzip:true}, (err, res, body) ->
 		statusCode = if res then res.statusCode else "ERR: #{err}"
 		cache.set url, statusCode
 		results =
@@ -23,19 +23,18 @@ exports.check_url = (url, cb) ->
 
 		return cb(null, results) if statusCode isnt 200
 
-		decodeBody res, body, (err, decoded) ->
-			links = extract_links decoded, url
-			
-			check = (link, cb) ->
-				check_link link, (err, statusCode) ->
-					if err
-						results.links[link] = err
-					else
-						results.links[link] = statusCode
-					cb()
-			
-			async.each links, check, (err) ->
-				cb(null, results)
+		links = extract_links body, url
+		
+		check = (link, cb) ->
+			check_link link, (err, statusCode) ->
+				if err
+					results.links[link] = err
+				else
+					results.links[link] = statusCode
+				cb()
+		
+		async.each links, check, (err) ->
+			cb(null, results)
 
 check_link = (link, cb) ->
 	cache.get link, (err, statusCode) ->
@@ -43,9 +42,15 @@ check_link = (link, cb) ->
 			cb(err, statusCode)
 		else
 			request.head link, (err, res) ->
-				statusCode = if res then res.statusCode else "ERR: #{err}"
-				cache.set link, statusCode
-				cb(err, statusCode)
+				if res?.statusCode is 405
+					request.get link, (err, res) ->
+						statusCode = if res then res.statusCode else "ERR: #{err}"
+						cache.set link, statusCode
+						cb(err, statusCode)
+				else								
+					statusCode = if res then res.statusCode else "ERR: #{err}"
+					cache.set link, statusCode
+					cb(err, statusCode)
 
 extract_links = (html, url) ->
 	$ = cheerio.load html
@@ -58,11 +63,3 @@ extract_links = (html, url) ->
 			if abs_link.indexOf('http') is 0
 				links[abs_link] = abs_link.split('?')[0].split('#')[0]
 	return (val for key, val of links)
-	
-decodeBody = (res, body, cb) ->
-	encoding = res.headers["content-encoding"]
-	if encoding and encoding.indexOf('gzip') >= 0
-		zlib.gunzip body, (err, data) ->
-			cb err, data.toString('utf8')
-	else
-		cb null, body.toString('utf8')
